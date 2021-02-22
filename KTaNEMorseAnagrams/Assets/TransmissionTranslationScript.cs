@@ -83,21 +83,9 @@ public class TransmissionTranslationScript : MonoBehaviour {
     bool ValidCheck(string first, string second)
     {
         int cnt = 0;
-        List<char> firstList = new List<char>();
-        List<char> secondList = new List<char>();
         foreach (char letter in first)
         {
-            firstList.Add(letter);
-        }
-        foreach (char letter in second)
-        {
-            secondList.Add(letter);
-        }
-        firstList.Sort();
-        secondList.Sort();
-        for (int i = 0; i < 5; i++)
-        {
-            if (firstList[i] == secondList[i])
+            if (second.Contains(letter))
             {
                 cnt++;
             }
@@ -155,7 +143,7 @@ public class TransmissionTranslationScript : MonoBehaviour {
             GetComponent<KMBombModule>().HandlePass();
             moduleSolved = true;
             Audio.PlaySoundAtTransform("solve", transform);
-            Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}. Module solved.", moduleId, possibleAnswers.Join());
+            Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}. Module solved.", moduleId, inputBox);
             displays[0].GetComponent<MeshRenderer>().material = colors[1];
             displays[1].GetComponent<MeshRenderer>().material = colors[1];
         }
@@ -169,13 +157,21 @@ public class TransmissionTranslationScript : MonoBehaviour {
     {
         delete.AddInteractionPunch(0.2f);
         Audio.PlaySoundAtTransform("beep", transform);
+        if (moduleSolved || isAnimating)
+        {
+            return;
+        }
         inputBox = string.Empty;
         displayTexts[1].text = "-----";
     }
 
     IEnumerator Invalid()
     {
-        Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}, which is not in the word list.", moduleId, inputBox);
+        if (!ValidCheck(display, inputBox))
+        {
+            Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}, which has more than 2 letters in common.", moduleId, inputBox);
+        }
+        else Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}, which is not in the word list.", moduleId, inputBox);
         Audio.PlaySoundAtTransform("error", transform);
         isAnimating = true;
         displays[0].GetComponent<MeshRenderer>().material = colors[2];
