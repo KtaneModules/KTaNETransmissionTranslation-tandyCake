@@ -6,7 +6,8 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
 
-public class TransmissionTranslationScript : MonoBehaviour {
+public class TransmissionTransposition : MonoBehaviour
+{
 
     public KMBombInfo Bomb;
     public KMAudio Audio;
@@ -15,13 +16,14 @@ public class TransmissionTranslationScript : MonoBehaviour {
     public GameObject[] displays;
     public TextMesh[] displayTexts;
     public Material[] colors;
+    public Material bg;
 
     static int moduleIdCounter = 1;
     int moduleId;
     private bool moduleSolved;
     bool isAnimating;
     char[] alphabet = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-    int[] dotCounts = new int[]  { 1, 3, 2, 2, 1, 3, 1, 4, 2, 1, 1, 3, 0, 1, 0, 2, 1, 2, 3, 0, 2, 3, 1, 2, 1, 2 };
+    int[] dotCounts = new int[] { 1, 3, 2, 2, 1, 3, 1, 4, 2, 1, 1, 3, 0, 1, 0, 2, 1, 2, 3, 0, 2, 3, 1, 2, 1, 2 };
     int[] dashCounts = new int[] { 1, 1, 2, 1, 0, 1, 2, 0, 0, 3, 2, 1, 2, 1, 3, 2, 3, 1, 0, 1, 1, 1, 2, 2, 3, 2 };
     string display = string.Empty;
     string inputBox = string.Empty;
@@ -33,18 +35,19 @@ public class TransmissionTranslationScript : MonoBehaviour {
     List<string> possibleAnswers = new List<string>();
 
 
-    void Awake () {
+    void Awake()
+    {
         moduleId = moduleIdCounter++;
-        
+
         foreach (KMSelectable button in buttons)
         {
             button.OnInteract += delegate () { KeyPress(button, button.GetComponentInChildren<TextMesh>().text); return false; };
         }
         delete.OnInteract += delegate () { Clear(); return false; };
-        
+
     }
 
-    void Start ()
+    void Start()
     {
 
         GetDisplay();
@@ -55,8 +58,8 @@ public class TransmissionTranslationScript : MonoBehaviour {
         }
         else
         {
-            Debug.LogFormat("[Transmission Translation #{0}] The displayed word is {1}, which has a total of {2} dots and {3} dashes.", moduleId, display, displayDots, displayDashes);
-            Debug.LogFormat("[Transmission Translation #{0}] Possible answers are: {1}", moduleId, possibleAnswers.Join());
+            Debug.LogFormat("[Transmission Transposition #{0}] The displayed word is {1}, which has a total of {2} dots and {3} dashes.", moduleId, display, displayDots, displayDashes);
+            Debug.LogFormat("[Transmission Transposition #{0}] Possible answers are: {1}", moduleId, possibleAnswers.Join());
         }
 
     }
@@ -83,9 +86,21 @@ public class TransmissionTranslationScript : MonoBehaviour {
     bool ValidCheck(string first, string second)
     {
         int cnt = 0;
+        List<char> firstList = new List<char>();
+        List<char> secondList = new List<char>();
         foreach (char letter in first)
         {
-            if (second.Contains(letter))
+            firstList.Add(letter);
+        }
+        foreach (char letter in second)
+        {
+            secondList.Add(letter);
+        }
+        firstList.Sort();
+        secondList.Sort();
+        for (int i = 0; i < 5; i++)
+        {
+            if (firstList[i] == secondList[i])
             {
                 cnt++;
             }
@@ -105,9 +120,12 @@ public class TransmissionTranslationScript : MonoBehaviour {
     {
         foreach (string word in wordList.Phrases)
         {
-            if ((GetDotCount(word) == displayDots) && (GetDashCount(word) == displayDashes) && ValidCheck(display, word))
+            if ((GetDotCount(word) == displayDots) && (GetDashCount(word) == displayDashes))
             {
-                possibleAnswers.Add(word);
+                if (ValidCheck(display, word))
+                {
+                    possibleAnswers.Add(word);
+                }
             }
         }
     }
@@ -143,9 +161,18 @@ public class TransmissionTranslationScript : MonoBehaviour {
             GetComponent<KMBombModule>().HandlePass();
             moduleSolved = true;
             Audio.PlaySoundAtTransform("solve", transform);
-            Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}. Module solved.", moduleId, inputBox);
-            displays[0].GetComponent<MeshRenderer>().material = colors[1];
-            displays[1].GetComponent<MeshRenderer>().material = colors[1];
+            Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}. Module solved.", moduleId, inputBox);
+            if (UnityEngine.Random.Range(0, 100) == 0)
+            {
+                displays[0].GetComponent<MeshRenderer>().material = colors[4];
+                displays[1].GetComponent<MeshRenderer>().material = colors[4];
+                bg.color = new Color(0.663f, 1, 1);
+            }
+            else
+            {
+                displays[0].GetComponent<MeshRenderer>().material = colors[1];
+                displays[1].GetComponent<MeshRenderer>().material = colors[1];
+            }
         }
         else if ((displayDots == GetDotCount(inputBox)) && (displayDashes == GetDashCount(inputBox)))
         {
@@ -169,9 +196,12 @@ public class TransmissionTranslationScript : MonoBehaviour {
     {
         if (!ValidCheck(display, inputBox))
         {
-            Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}, which has more than 2 letters in common.", moduleId, inputBox);
+            Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which has more than 2 letters in common.", moduleId, inputBox);
         }
-        else Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}, which is not in the word list.", moduleId, inputBox);
+        else
+        {
+            Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which is not in the word list.", moduleId, inputBox);
+        }
         Audio.PlaySoundAtTransform("error", transform);
         isAnimating = true;
         displays[0].GetComponent<MeshRenderer>().material = colors[2];
@@ -185,7 +215,7 @@ public class TransmissionTranslationScript : MonoBehaviour {
     }
     IEnumerator Strike()
     {
-        Debug.LogFormat("[Transmission Translation #{0}] You submitted {1}, which does not have the same number of dots/dashes. Strike  .", moduleId, inputBox);
+        Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which does not have the same number of dots/dashes. Strike  .", moduleId, inputBox);
         Audio.PlaySoundAtTransform("buzzer", transform);
         isAnimating = true;
         displays[0].GetComponent<MeshRenderer>().material = colors[3];
@@ -203,7 +233,7 @@ public class TransmissionTranslationScript : MonoBehaviour {
 #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"Use [!{0} submit MORSE] to enter the word MORSE into the module.";
 #pragma warning restore 414
-    IEnumerator ProcessTwitchCommand (string Command)
+    IEnumerator ProcessTwitchCommand(string Command)
     {
         string[] parameters = Command.Trim().ToUpper().Split(' ');
         if (parameters.Length == 2)
@@ -230,7 +260,7 @@ public class TransmissionTranslationScript : MonoBehaviour {
         }
     }
 
-    IEnumerator TwitchHandleForcedSolve ()
+    IEnumerator TwitchHandleForcedSolve()
     {
         string weAreSubmittingThisNumberColonSmileColon = possibleAnswers[UnityEngine.Random.Range(0, possibleAnswers.Count())];
         if (inputBox.Length != 0)
