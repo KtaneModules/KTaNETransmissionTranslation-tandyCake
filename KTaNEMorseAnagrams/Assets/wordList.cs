@@ -1,7 +1,6 @@
 ﻿public static class wordList
 {
     public static string[] Phrases = {
-    "AAAHH",
     "AAHED",
     "AALII",
     "AARGH",
@@ -6286,7 +6285,6 @@
     "RENAL",
     "RENDS",
     "RENEW",
-    "RENIG",
     "RENIN",
     "RENTE",
     "RENTS",
@@ -8935,6 +8933,14 @@
     "ZOUKS",
     "ZOWIE",
     "ZUZIM",
-    "ZYMES"
+    "ZYMES",
+    "MONKE",
+    "MONKY",
+    "SMOSH",
+    "KTANE",
+    "HIMBO",
+    "TWINK",
+    "TRANS",
+    "RIGHT",
             };
 }

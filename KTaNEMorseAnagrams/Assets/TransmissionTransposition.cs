@@ -86,24 +86,9 @@ public class TransmissionTransposition : MonoBehaviour
     bool ValidCheck(string first, string second)
     {
         int cnt = 0;
-        List<char> firstList = new List<char>();
-        List<char> secondList = new List<char>();
-        foreach (char letter in first)
-        {
-            firstList.Add(letter);
-        }
-        foreach (char letter in second)
-        {
-            secondList.Add(letter);
-        }
-        firstList.Sort();
-        secondList.Sort();
         for (int i = 0; i < 5; i++)
         {
-            if (firstList[i] == secondList[i])
-            {
-                cnt++;
-            }
+            if (first.Contains(second[i])) cnt++;
         }
         return cnt <= 2;
 
