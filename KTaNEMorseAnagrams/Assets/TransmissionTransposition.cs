@@ -16,13 +16,13 @@ public class TransmissionTransposition : MonoBehaviour
     public GameObject[] displays;
     public TextMesh[] displayTexts;
     public Material[] colors;
-    public Material bg;
+    public GameObject bg;
 
     static int moduleIdCounter = 1;
     int moduleId;
     private bool moduleSolved;
     bool isAnimating;
-    char[] alphabet = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+    char[] keyboardLayout = "QWERTYUIOPASDFGHJKLZXCVBNM".ToCharArray();
     int[] dotCounts = new int[] { 1, 3, 2, 2, 1, 3, 1, 4, 2, 1, 1, 3, 0, 1, 0, 2, 1, 2, 3, 0, 2, 3, 1, 2, 1, 2 };
     int[] dashCounts = new int[] { 1, 1, 2, 1, 0, 1, 2, 0, 0, 3, 2, 1, 2, 1, 3, 2, 3, 1, 0, 1, 1, 1, 2, 2, 3, 2 };
     string display = string.Empty;
@@ -40,22 +40,17 @@ public class TransmissionTransposition : MonoBehaviour
         moduleId = moduleIdCounter++;
 
         foreach (KMSelectable button in buttons)
-        {
             button.OnInteract += delegate () { KeyPress(button, button.GetComponentInChildren<TextMesh>().text); return false; };
-        }
         delete.OnInteract += delegate () { Clear(); return false; };
 
     }
 
     void Start()
     {
-
         GetDisplay();
         CalculateAnswers();
-        if (possibleAnswers.Count < 80)
-        {
+        if (possibleAnswers.Count < 60)
             Start();
-        }
         else
         {
             Debug.LogFormat("[Transmission Transposition #{0}] The displayed word is {1}, which has a total of {2} dots and {3} dashes.", moduleId, display, displayDots, displayDashes);
@@ -67,31 +62,22 @@ public class TransmissionTransposition : MonoBehaviour
     {
         int dots = 0;
         foreach (char letter in input.ToUpperInvariant())
-        {
-            int index = Array.IndexOf(alphabet, letter);
-            dots += dotCounts[index];
-        }
+            dots += dotCounts[letter - 'A'];
         return dots;
     }
     int GetDashCount(string input)
     {
         int dashes = 0;
         foreach (char letter in input.ToUpperInvariant())
-        {
-            int index = Array.IndexOf(alphabet, letter);
-            dashes += dashCounts[index];
-        }
+            dashes += dashCounts[letter - 'A'];
         return dashes;
     }
     bool ValidCheck(string first, string second)
     {
         int cnt = 0;
         for (int i = 0; i < 5; i++)
-        {
             if (first.Contains(second[i])) cnt++;
-        }
         return cnt <= 2;
-
     }
 
     void GetDisplay()
@@ -105,13 +91,8 @@ public class TransmissionTransposition : MonoBehaviour
     {
         foreach (string word in wordList.Phrases)
         {
-            if ((GetDotCount(word) == displayDots) && (GetDashCount(word) == displayDashes))
-            {
-                if (ValidCheck(display, word))
-                {
+            if ((GetDotCount(word) == displayDots) && (GetDashCount(word) == displayDashes) && ValidCheck(display, word))
                     possibleAnswers.Add(word);
-                }
-            }
         }
     }
 
@@ -120,17 +101,10 @@ public class TransmissionTransposition : MonoBehaviour
         button.AddInteractionPunch(0.05f);
         Audio.PlaySoundAtTransform("beep", transform);
         if (moduleSolved || isAnimating)
-        {
             return;
-        }
         inputBox += letter;
-        toDisplay = string.Empty;
-        for (int i = 0; i < 5 - inputBox.Length; i++)
-        {
-            toDisplay += "-";
-        }
-        toDisplay += inputBox;
-        displayTexts[1].text = toDisplay;
+
+        displayTexts[1].text = inputBox.PadLeft(5, '-');
 
         if (inputBox.Length == 5)
         {
@@ -151,7 +125,7 @@ public class TransmissionTransposition : MonoBehaviour
             {
                 displays[0].GetComponent<MeshRenderer>().material = colors[4];
                 displays[1].GetComponent<MeshRenderer>().material = colors[4];
-                bg.color = new Color(0.663f, 1, 1);
+                bg.GetComponent<MeshRenderer>().material.color = new Color(0.663f, 1, 1);
             }
             else
             {
@@ -160,19 +134,15 @@ public class TransmissionTransposition : MonoBehaviour
             }
         }
         else if ((displayDots == GetDotCount(inputBox)) && (displayDashes == GetDashCount(inputBox)))
-        {
             StartCoroutine(Invalid());
-        }
         else StartCoroutine(Strike());
     }
     void Clear()
     {
-        delete.AddInteractionPunch(0.2f);
+        delete.AddInteractionPunch(0.3f);
         Audio.PlaySoundAtTransform("beep", transform);
         if (moduleSolved || isAnimating)
-        {
             return;
-        }
         inputBox = string.Empty;
         displayTexts[1].text = "-----";
     }
@@ -180,14 +150,10 @@ public class TransmissionTransposition : MonoBehaviour
     IEnumerator Invalid()
     {
         if (!ValidCheck(display, inputBox))
-        {
             Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which has more than 2 letters in common.", moduleId, inputBox);
-        }
-        else
-        {
-            Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which is not in the word list.", moduleId, inputBox);
-        }
+        else Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which is not in the word list.", moduleId, inputBox);
         Audio.PlaySoundAtTransform("error", transform);
+
         isAnimating = true;
         displays[0].GetComponent<MeshRenderer>().material = colors[2];
         displays[1].GetComponent<MeshRenderer>().material = colors[2];
@@ -200,7 +166,7 @@ public class TransmissionTransposition : MonoBehaviour
     }
     IEnumerator Strike()
     {
-        Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which does not have the same number of dots/dashes. Strike  .", moduleId, inputBox);
+        Debug.LogFormat("[Transmission Transposition #{0}] You submitted {1}, which does not have the same number of dots/dashes, Strike incurred.", moduleId, inputBox);
         Audio.PlaySoundAtTransform("buzzer", transform);
         isAnimating = true;
         displays[0].GetComponent<MeshRenderer>().material = colors[3];
@@ -218,50 +184,40 @@ public class TransmissionTransposition : MonoBehaviour
 #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"Use [!{0} submit MORSE] to enter the word MORSE into the module.";
 #pragma warning restore 414
-    IEnumerator ProcessTwitchCommand(string Command)
+    IEnumerator ProcessTwitchCommand(string input)
     {
-        string[] parameters = Command.Trim().ToUpper().Split(' ');
-        if (parameters.Length == 2)
+        string command = input.Trim().ToUpperInvariant();
+        List<string> parameters = command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (Regex.IsMatch(command, @"^SUBMIT\s+[A-Z]{5}$"))
         {
-            if ((parameters[0] == "SUBMIT") && parameters[1].All(x => "ABCDEFGHIJKLMNOPQRSTUVWXYZ".Contains(x)) && (parameters[1].Length == 5))
+            yield return null;
+            if (inputBox != string.Empty)
             {
-                yield return null;
-                if (inputBox.Length != 0)
-                {
-                    delete.OnInteract();
-                }
-                foreach (char letter in parameters[1])
-                {
-                    foreach (KMSelectable button in buttons)
-                    {
-                        if (button.GetComponentInChildren<TextMesh>().text[0] == letter)
-                        {
-                            button.OnInteract();
-                            yield return new WaitForSeconds(0.1f);
-                        }
-                    }
-                }
+                delete.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+            foreach (char letter in parameters.Last())
+            {
+                buttons[Array.IndexOf(keyboardLayout, letter)].OnInteract();
+                yield return new WaitForSeconds(0.1f);  
             }
         }
+
+
     }
 
     IEnumerator TwitchHandleForcedSolve()
     {
-        string weAreSubmittingThisNumberColonSmileColon = possibleAnswers[UnityEngine.Random.Range(0, possibleAnswers.Count())];
+        string weAreSubmittingThisNumberColonSmileColon = possibleAnswers.PickRandom();
         if (inputBox.Length != 0)
         {
             delete.OnInteract();
+            yield return new WaitForSeconds(0.1f);
         }
         foreach (char letter in weAreSubmittingThisNumberColonSmileColon)
         {
-            foreach (KMSelectable button in buttons)
-            {
-                if (button.GetComponentInChildren<TextMesh>().text[0] == letter)
-                {
-                    button.OnInteract();
-                    yield return new WaitForSeconds(0.1f);
-                }
-            }
+            buttons[Array.IndexOf(keyboardLayout, letter)].OnInteract();
+            yield return new WaitForSeconds(0.1f);
         }
     }
 }

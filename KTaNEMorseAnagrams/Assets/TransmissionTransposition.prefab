@@ -1175,7 +1175,7 @@ GameObject:
   - component: {fileID: 114139553842080666}
   - component: {fileID: 114343489036730050}
   m_Layer: 0
-  m_Name: Template
+  m_Name: TransmissionTransposition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6683,6 +6683,7 @@ MonoBehaviour:
   - {fileID: 114141046641330954}
   - {fileID: 114489773386726028}
   - {fileID: 114513579541834820}
+  - {fileID: 0}
   - {fileID: 114615335242930238}
   - {fileID: 114483249587398162}
   - {fileID: 114999245575219092}
@@ -6692,6 +6693,8 @@ MonoBehaviour:
   - {fileID: 114450866489678296}
   - {fileID: 114267994122143212}
   - {fileID: 114051626178635356}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 114531722098303680}
   - {fileID: 114406447473793958}
   - {fileID: 114533765609525826}
@@ -6700,8 +6703,8 @@ MonoBehaviour:
   - {fileID: 114118481486103080}
   - {fileID: 114542821352346224}
   - {fileID: 114248922333985010}
-  IsPassThrough: 1
-  ChildRowLength: 0
+  IsPassThrough: 0
+  ChildRowLength: 10
   Highlight: {fileID: 114570430299588062}
   SelectableColliders: []
   DefaultSelectableIndex: 0
@@ -6996,7 +6999,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - KT/Mobile/DiffuseTint
 --- !u!114 &114289750579801070
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7102,7 +7105,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: e626326e3037d7b47a1a8b7ea029da0a, type: 2}
   - {fileID: 2100000, guid: 29a3a1f979ac7cd44906a8292d549017, type: 2}
   - {fileID: 2100000, guid: c62b25083525f8646a9e520df0c125a2, type: 2}
-  bg: {fileID: 2100000, guid: bf295a7bafcef31409124ea93b1b9b03, type: 2}
+  bg: {fileID: 1790091999367520}
 --- !u!114 &114346610697494944
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7241,7 +7244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - KT/Mobile/DiffuseTint
 --- !u!114 &114449942983350306
 MonoBehaviour:
   m_ObjectHideFlags: 1
