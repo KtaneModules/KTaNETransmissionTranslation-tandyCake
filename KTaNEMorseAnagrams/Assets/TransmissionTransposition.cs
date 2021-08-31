@@ -47,6 +47,7 @@ public class TransmissionTransposition : MonoBehaviour
 
     void Start()
     {
+        wordList.Phrases = wordList.Phrases.OrderBy(x => x).Distinct().ToArray();
         GetDisplay();
         CalculateAnswers();
         if (possibleAnswers.Count < 60)
@@ -74,10 +75,7 @@ public class TransmissionTransposition : MonoBehaviour
     }
     bool ValidCheck(string first, string second)
     {
-        int cnt = 0;
-        for (int i = 0; i < 5; i++)
-            if (first.Contains(second[i])) cnt++;
-        return cnt <= 2;
+        return Enumerable.Range('A', 26).Count(x => first.Contains((char)x) && second.Contains((char)x)) <= 2;
     }
 
     void GetDisplay()
@@ -89,11 +87,7 @@ public class TransmissionTransposition : MonoBehaviour
     }
     void CalculateAnswers()
     {
-        foreach (string word in wordList.Phrases)
-        {
-            if ((GetDotCount(word) == displayDots) && (GetDashCount(word) == displayDashes) && ValidCheck(display, word))
-                    possibleAnswers.Add(word);
-        }
+        possibleAnswers = wordList.Phrases.Where(x => GetDotCount(x) == displayDots && GetDashCount(x) == displayDashes && ValidCheck(display, x)).ToList();
     }
 
     void KeyPress(KMSelectable button, string letter)

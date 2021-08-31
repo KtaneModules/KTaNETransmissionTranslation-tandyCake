@@ -17,6 +17,6 @@ MonoBehaviour:
   description: "Fun Fact!: Samuel \"Sam-a-grams\" Morse invented Morse code as a result
     of the tragic death of his wife.\n\nModule Created by Danny7007\r\nIdea created
     by BlvdBroken\nmoduleID: transmissionTransposition\nManual can be found on ktane.timwi.de"
-  version: 1.0.0
+  version: 2.0.3
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 1e42a00f8a1014c42a83455c82ea1b77, type: 3}
